@@ -17,6 +17,9 @@
 static ErlNifFunc esqlite_nif_functions[] = {
         {"libversion", 0, esqlite_libversion, 0},
         {"sourceid", 0, esqlite_sourceid, 0},
+
+        {"open", 3, esqlite_open, 0},
+        {"close", 1, esqlite_close, 0},
 };
 
 static int
@@ -29,6 +32,10 @@ esqlite_load(ErlNifEnv *env, void **priv, ERL_NIF_TERM info) {
                              strerror(errno));
                 return 1;
         }
+
+        data->database_resource_type =
+                esqlite_create_resource_type(env, "database",
+                                             esqlite_database_delete);
 
         *priv = (void *)data;
         return 0;

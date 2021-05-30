@@ -3,3 +3,4 @@ _build
 *.crashdump
 *.o
 *.plt
+*.so

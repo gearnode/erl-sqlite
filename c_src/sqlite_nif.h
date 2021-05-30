@@ -15,6 +15,7 @@
 #ifndef SQLITE_NIF_H
 #define SQLITE_NIF_H
 
+#include <stdbool.h>
 #include <string.h>
 
 #include <ei.h>
@@ -23,16 +24,26 @@
 #include <sqlite3.h>
 
 struct esqlite_nif_data {
+        ErlNifResourceType *database_resource_type;
 };
 
-void esqlite_nif_data_dtor(ErlNifEnv *, void *);
+void esqlite_database_delete(ErlNifEnv *, void *);
 
+ERL_NIF_TERM esqlite_ok_tuple(ErlNifEnv *, ERL_NIF_TERM);
+ERL_NIF_TERM esqlite_error_tuple(ErlNifEnv *, ERL_NIF_TERM);
 ERL_NIF_TERM esqlite_binary_string(ErlNifEnv *, const char *);
+int esqlite_inspect_binary_string(ErlNifEnv *, ERL_NIF_TERM, char **);
+bool esqlite_is_atom(ErlNifEnv *env, ERL_NIF_TERM, const char *);
+ErlNifResourceType *esqlite_create_resource_type(ErlNifEnv *, const char *,
+                                                 ErlNifResourceDtor *);
 
 #define ESQLITE_EXPORT(name_) \
         ERL_NIF_TERM name_(ErlNifEnv *, int, const ERL_NIF_TERM [])
 
 ESQLITE_EXPORT(esqlite_libversion);
 ESQLITE_EXPORT(esqlite_sourceid);
+
+ESQLITE_EXPORT(esqlite_open);
+ESQLITE_EXPORT(esqlite_close);
 
 #endif
