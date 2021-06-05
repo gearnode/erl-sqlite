@@ -58,7 +58,7 @@ esqlite_inspect_binary_string(ErlNifEnv *env, ERL_NIF_TERM binary_term,
 
 bool
 esqlite_is_atom(ErlNifEnv *env, ERL_NIF_TERM term, const char *name) {
-        char atom_name[256]; // totally arbitratry max length
+        char atom_name[256]; // totally arbitrary max length
         int ret;
 
         ret = enif_get_atom(env, term, atom_name, sizeof(atom_name),
