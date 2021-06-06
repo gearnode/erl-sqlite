@@ -21,7 +21,7 @@
 #include <ei.h>
 #include <erl_nif.h>
 
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 struct esqlite_nif_data {
         ErlNifResourceType *database_resource_type;

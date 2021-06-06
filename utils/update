@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eu
+
+# Example:
+# utils/update https://www.sqlite.org/2021/sqlite-amalgamation-3350500.zip
+
+root=$(realpath $(dirname $0)/..)
+
+if [ $# -lt 1 ]; then
+    echo "missing argument" >&2
+    exit 1
+fi
+
+uri=$1
+
+tmp_archive=$(mktemp)
+trap "rm -f $tmp_archive" EXIT
+curl -sS -o $tmp_archive $uri
+
+unzip -j -d $root/c_src/sqlite3 -o $tmp_archive
+rm $root/c_src/sqlite3/shell.c
