@@ -19,11 +19,7 @@ esqlite_inspect_prepare_flags(ErlNifEnv *, ERL_NIF_TERM, unsigned int *);
 
 void
 esqlite_statement_delete(ErlNifEnv *env, void *ptr) {
-        struct sqlite3_stmt *stmt;
-
-        stmt = ptr;
-
-        sqlite3_finalize(stmt);
+        sqlite3_finalize((struct sqlite3_stmt *)ptr);
 }
 
 int
@@ -38,9 +34,8 @@ esqlite_inspect_statement(ErlNifEnv *env, ERL_NIF_TERM term,
         resource_type = nif_data->statement_resource_type;
 
         ret = enif_get_resource(env, term, resource_type, (void **)&pstmt);
-        if (ret == 0) {
+        if (ret == 0)
                 return 0;
-        }
 
         *opstmt = *pstmt;
 
@@ -60,21 +55,17 @@ esqlite_prepare(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
         nif_data = enif_priv_data(env);
 
-        if (argc != 3) {
+        if (argc != 3)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_database(env, argv[0], &db) == 0) {
+        if (esqlite_inspect_database(env, argv[0], &db) == 0)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_binary_string(env, argv[1], &query) == 0) {
+        if (esqlite_inspect_binary_string(env, argv[1], &query) == 0)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_prepare_flags(env, argv[2], &flags) == 0) {
+        if (esqlite_inspect_prepare_flags(env, argv[2], &flags) == 0)
                 return enif_make_badarg(env);
-        }
 
         ret = sqlite3_prepare_v3(db, query, -1, flags, &stmt, &tail);
         if (ret != SQLITE_OK) {
@@ -106,13 +97,11 @@ esqlite_finalize(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
         nif_data = enif_priv_data(env);
 
-        if (argc != 1) {
+        if (argc != 1)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0) {
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
                 return enif_make_badarg(env);
-        }
 
         sqlite3_finalize(stmt);
 
@@ -125,9 +114,8 @@ esqlite_inspect_prepare_flags(ErlNifEnv *env, ERL_NIF_TERM list,
         ERL_NIF_TERM head, tail;
         unsigned int flags;
 
-        if (!enif_is_list(env, list)) {
+        if (!enif_is_list(env, list))
                 return 0;
-        }
 
         flags = 0;
 

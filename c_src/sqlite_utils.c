@@ -48,9 +48,8 @@ esqlite_inspect_binary_string(ErlNifEnv *env, ERL_NIF_TERM binary_term,
         ErlNifBinary binary;
         char *data;
 
-        if (enif_inspect_binary(env, binary_term, &binary) == 0) {
+        if (enif_inspect_binary(env, binary_term, &binary) == 0)
                 return 0;
-        }
 
         data = enif_alloc(binary.size + 1);
         memcpy(data, binary.data, binary.size);
@@ -68,9 +67,8 @@ esqlite_is_atom(ErlNifEnv *env, ERL_NIF_TERM term, const char *name) {
 
         ret = enif_get_atom(env, term, atom_name, sizeof(atom_name),
                             ERL_NIF_LATIN1);
-        if (ret == -1) {
+        if (ret == -1)
                 return false;
-        }
 
         return strcmp(atom_name, name) == 0;
 }

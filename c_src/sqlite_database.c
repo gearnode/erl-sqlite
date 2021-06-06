@@ -18,13 +18,9 @@ static int esqlite_inspect_open_flags(ErlNifEnv *, ERL_NIF_TERM, int *);
 
 void
 esqlite_database_delete(ErlNifEnv *env, void *ptr) {
-        struct sqlite3 *db;
-
-        db = ptr;
-
         // While sqlite3_close_v2() has a return value, it always returns
         // SQLITE3_OK (which is why we use it instead of sqlite3_close()).
-        sqlite3_close_v2(db);
+        sqlite3_close_v2((struct sqlite3 *)ptr);
 }
 
 int
@@ -37,9 +33,8 @@ esqlite_inspect_database(ErlNifEnv *env, ERL_NIF_TERM term,
         nif_data = enif_priv_data(env);
         resource_type = nif_data->database_resource_type;
 
-        if (enif_get_resource(env, term, resource_type, (void **)&pdb) == 0) {
+        if (enif_get_resource(env, term, resource_type, (void **)&pdb) == 0)
                 return 0;
-        }
 
         *opdb = *pdb;
 
@@ -238,17 +233,14 @@ esqlite_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
         nif_data = enif_priv_data(env);
 
-        if (argc != 3) {
+        if (argc != 3)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_binary_string(env, argv[0], &path) == 0) {
+        if (esqlite_inspect_binary_string(env, argv[0], &path) == 0)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_open_flags(env, argv[1], &flags) == 0) {
+        if (esqlite_inspect_open_flags(env, argv[1], &flags) == 0)
                 return enif_make_badarg(env);
-        }
 
         if (esqlite_is_atom(env, argv[2], "undefined")) {
                 vfs = NULL;
@@ -285,13 +277,11 @@ esqlite_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
         nif_data = enif_priv_data(env);
 
-        if (argc != 1) {
+        if (argc != 1)
                 return enif_make_badarg(env);
-        }
 
-        if (esqlite_inspect_database(env, argv[0], &db) == 0) {
+        if (esqlite_inspect_database(env, argv[0], &db) == 0)
                 return enif_make_badarg(env);
-        }
 
         sqlite3_close_v2(db);
 
@@ -303,9 +293,8 @@ esqlite_inspect_open_flags(ErlNifEnv *env, ERL_NIF_TERM list, int *pflags) {
         ERL_NIF_TERM head, tail;
         int flags;
 
-        if (!enif_is_list(env, list)) {
+        if (!enif_is_list(env, list))
                 return 0;
-        }
 
         flags = 0;
 
