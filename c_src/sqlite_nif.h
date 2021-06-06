@@ -23,15 +23,17 @@
 
 #include "sqlite3.h"
 
+#define ESQLITE_EXPORT(name_) \
+        ERL_NIF_TERM name_(ErlNifEnv *, int, const ERL_NIF_TERM [])
+
 struct esqlite_nif_data {
         ErlNifResourceType *database_resource_type;
         ErlNifResourceType *statement_resource_type;
 };
 
-void esqlite_database_delete(ErlNifEnv *, void *);
-void esqlite_statement_delete(ErlNifEnv *, void *);
-
+// Utils
 ERL_NIF_TERM esqlite_ok_tuple(ErlNifEnv *, ERL_NIF_TERM);
+ERL_NIF_TERM esqlite_ok_tuple2(ErlNifEnv *, ERL_NIF_TERM, ERL_NIF_TERM);
 ERL_NIF_TERM esqlite_error_tuple(ErlNifEnv *, ERL_NIF_TERM);
 ERL_NIF_TERM esqlite_binary_string(ErlNifEnv *, const char *);
 int esqlite_inspect_binary_string(ErlNifEnv *, ERL_NIF_TERM, char **);
@@ -39,13 +41,22 @@ bool esqlite_is_atom(ErlNifEnv *env, ERL_NIF_TERM, const char *);
 ErlNifResourceType *esqlite_create_resource_type(ErlNifEnv *, const char *,
                                                  ErlNifResourceDtor *);
 
-#define ESQLITE_EXPORT(name_) \
-        ERL_NIF_TERM name_(ErlNifEnv *, int, const ERL_NIF_TERM [])
-
+// Misc
 ESQLITE_EXPORT(esqlite_libversion);
 ESQLITE_EXPORT(esqlite_sourceid);
 
+// Databases
+void esqlite_database_delete(ErlNifEnv *, void *);
+int esqlite_inspect_database(ErlNifEnv *, ERL_NIF_TERM, struct sqlite3 **);
+ERL_NIF_TERM esqlite_error_code(ErlNifEnv *, struct sqlite3 *);
+
 ESQLITE_EXPORT(esqlite_open);
 ESQLITE_EXPORT(esqlite_close);
+
+// Statements
+void esqlite_statement_delete(ErlNifEnv *, void *);
+
+ESQLITE_EXPORT(esqlite_prepare);
+ESQLITE_EXPORT(esqlite_finalize);
 
 #endif

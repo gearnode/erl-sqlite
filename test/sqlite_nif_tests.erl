@@ -16,11 +16,24 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-open_close_test() ->
-  DbPath = test_db_path(),
-  {ok, Db} = sqlite_nif:open(DbPath, [readwrite, create], undefined),
-  sqlite_nif:close(Db).
+nif_test_() ->
+  {setup,
+   fun () ->
+       DbPath = <<"/tmp/erl-sqlite-test.db">>,
+       {ok, Db} = sqlite_nif:open(DbPath, [readwrite, create], undefined),
+       Db
+   end,
+   fun (Db) ->
+       sqlite_nif:close(Db)
+   end,
+   fun (Db) ->
+       {with, Db, [fun prepare/1]}
+   end}.
 
--spec test_db_path() -> binary().
-test_db_path() ->
-  <<"/tmp/erl-sqlite-test.db">>.
+prepare(Db) ->
+  Query1 = <<"SELECT 1; SELECT 2">>,
+  {ok, Stmt1, Query2} = sqlite_nif:prepare(Db, Query1, []),
+  sqlite_nif:finalize(Stmt1),
+  ?assertEqual(<<" SELECT 2">>, Query2),
+  {ok, Stmt2, <<"">>} = sqlite_nif:prepare(Db, Query2, []),
+  sqlite_nif:finalize(Stmt2).

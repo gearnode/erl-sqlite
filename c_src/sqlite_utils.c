@@ -20,6 +20,11 @@ esqlite_ok_tuple(ErlNifEnv *env, ERL_NIF_TERM term) {
 }
 
 ERL_NIF_TERM
+esqlite_ok_tuple2(ErlNifEnv *env, ERL_NIF_TERM term1, ERL_NIF_TERM term2) {
+        return enif_make_tuple3(env, enif_make_atom(env, "ok"), term1, term2);
+}
+
+ERL_NIF_TERM
 esqlite_error_tuple(ErlNifEnv *env, ERL_NIF_TERM term) {
         return enif_make_tuple2(env, enif_make_atom(env, "error"), term);
 }

@@ -20,6 +20,9 @@ static ErlNifFunc esqlite_nif_functions[] = {
 
         {"open", 3, esqlite_open, 0},
         {"close", 1, esqlite_close, 0},
+
+        {"prepare", 3, esqlite_prepare, 0},
+        {"finalize", 1, esqlite_finalize, 0},
 };
 
 static int

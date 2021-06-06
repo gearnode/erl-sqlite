@@ -15,19 +15,23 @@
 -module(sqlite_nif).
 
 -export([libversion/0, sourceid/0,
-         open/3, close/1]).
+         open/3, close/1,
+         prepare/3, finalize/1]).
 
--export_type([database/0,
+-export_type([database/0, statement/0,
               result/0, result/1,
               error_code/0, primary_error_code/0, extended_error_code/0,
-              open_flag/0]).
+              open_flag/0, prepare_flag/0]).
 
 -on_load(init/0).
 
 -type database() :: reference().
+-type statement() :: reference().
 
 -type result() :: ok | {error, error_code()}.
 -type result(Result) :: {ok, Result} | {error, error_code()}.
+-type result2(Result1, Result2) ::
+        {ok, Result1, Result2} | {error, error_code()}.
 
 -type error_code() ::
         primary_error_code()
@@ -152,6 +156,11 @@
       | privatecache
       | nofollow.
 
+-type prepare_flag() ::
+        persistent
+      | normalize
+      | no_vtab.
+
 init() ->
   Path = filename:join(find_nif_directory(sqlite), "sqlite_nif"),
   erlang:load_nif(Path, []).
@@ -207,6 +216,15 @@ sourceid() ->
 open(_Path, _Flags, _MaybeVfs) ->
   erlang:nif_error(nif_not_loaded).
 
--spec close(reference()) -> ok.
+-spec close(database()) -> ok.
 close(_Db) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec prepare(database(), binary(), [prepare_flag()]) ->
+        result2(statement(), binary()).
+prepare(_Db, _Query, _Flags) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec finalize(statement()) -> ok.
+finalize(_Stmt) ->
   erlang:nif_error(nif_not_loaded).

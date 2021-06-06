@@ -14,7 +14,6 @@
 
 #include "sqlite_nif.h"
 
-static ERL_NIF_TERM esqlite_error_code(ErlNifEnv *, struct sqlite3 *);
 static int esqlite_inspect_open_flags(ErlNifEnv *, ERL_NIF_TERM, int *);
 
 void
@@ -28,80 +27,26 @@ esqlite_database_delete(ErlNifEnv *env, void *ptr) {
         sqlite3_close_v2(db);
 }
 
-ERL_NIF_TERM
-esqlite_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+int
+esqlite_inspect_database(ErlNifEnv *env, ERL_NIF_TERM term,
+                         struct sqlite3 **opdb) {
         struct esqlite_nif_data *nif_data;
-        struct sqlite3 *db, **db_resource;
-        char *path, *vfs;
-        int flags, ret;
+        ErlNifResourceType *resource_type;
+        struct sqlite3 **pdb;
 
         nif_data = enif_priv_data(env);
+        resource_type = nif_data->database_resource_type;
 
-        if (argc != 3) {
-                return enif_make_badarg(env);
+        if (enif_get_resource(env, term, resource_type, (void **)&pdb) == 0) {
+                return 0;
         }
 
-        if (esqlite_inspect_binary_string(env, argv[0], &path) == 0) {
-                return enif_make_badarg(env);
-        }
+        *opdb = *pdb;
 
-        if (esqlite_inspect_open_flags(env, argv[1], &flags) == 0) {
-                return enif_make_badarg(env);
-        }
-
-        if (esqlite_is_atom(env, argv[2], "undefined")) {
-                vfs = NULL;
-        } else if (esqlite_inspect_binary_string(env, argv[2], &vfs) == 0) {
-                return enif_make_badarg(env);
-        }
-
-        ret = sqlite3_open_v2(path, &db, flags, vfs);
-        if (!db || ret != SQLITE_OK) {
-                ERL_NIF_TERM reason;
-
-                reason = esqlite_error_code(env, db);
-
-                enif_free(path);
-                enif_free(vfs);
-
-                return esqlite_error_tuple(env, reason);
-        }
-
-        enif_free(path);
-        enif_free(vfs);
-
-        db_resource = enif_alloc_resource(nif_data->database_resource_type,
-                                          sizeof(*db_resource));
-        *db_resource = db;
-
-        return esqlite_ok_tuple(env, enif_make_resource(env, db_resource));
+        return 1;
 }
 
 ERL_NIF_TERM
-esqlite_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
-        struct sqlite3 **pdb, *db;
-        int ret;
-
-        nif_data = enif_priv_data(env);
-
-        if (argc != 1) {
-                return enif_make_badarg(env);
-        }
-
-        ret = enif_get_resource(env, argv[0], nif_data->database_resource_type,
-                                (void **)&pdb);
-        if (ret == 0) {
-                return enif_make_badarg(env);
-        }
-        db = *pdb;
-
-        ret = sqlite3_close_v2(db);
-
-        return enif_make_atom(env, "ok");
-}
-
-static ERL_NIF_TERM
 esqlite_error_code(ErlNifEnv *env, struct sqlite3 *db) {
         int code;
 
@@ -282,6 +227,75 @@ esqlite_error_code(ErlNifEnv *env, struct sqlite3 *db) {
         }
 
         return enif_make_int(env, code);
+}
+
+ERL_NIF_TERM
+esqlite_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3 *db, **pdb;
+        char *path, *vfs;
+        int flags, ret;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 3) {
+                return enif_make_badarg(env);
+        }
+
+        if (esqlite_inspect_binary_string(env, argv[0], &path) == 0) {
+                return enif_make_badarg(env);
+        }
+
+        if (esqlite_inspect_open_flags(env, argv[1], &flags) == 0) {
+                return enif_make_badarg(env);
+        }
+
+        if (esqlite_is_atom(env, argv[2], "undefined")) {
+                vfs = NULL;
+        } else if (esqlite_inspect_binary_string(env, argv[2], &vfs) == 0) {
+                return enif_make_badarg(env);
+        }
+
+        ret = sqlite3_open_v2(path, &db, flags, vfs);
+        if (!db || ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_error_code(env, db);
+
+                enif_free(path);
+                enif_free(vfs);
+
+                return esqlite_error_tuple(env, reason);
+        }
+
+        enif_free(path);
+        enif_free(vfs);
+
+        pdb = enif_alloc_resource(nif_data->database_resource_type,
+                                  sizeof(*pdb));
+        *pdb = db;
+
+        return esqlite_ok_tuple(env, enif_make_resource(env, pdb));
+}
+
+ERL_NIF_TERM
+esqlite_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3 *db;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 1) {
+                return enif_make_badarg(env);
+        }
+
+        if (esqlite_inspect_database(env, argv[0], &db) == 0) {
+                return enif_make_badarg(env);
+        }
+
+        sqlite3_close_v2(db);
+
+        return enif_make_atom(env, "ok");
 }
 
 static int
