@@ -25,9 +25,11 @@
 
 struct esqlite_nif_data {
         ErlNifResourceType *database_resource_type;
+        ErlNifResourceType *statement_resource_type;
 };
 
 void esqlite_database_delete(ErlNifEnv *, void *);
+void esqlite_statement_delete(ErlNifEnv *, void *);
 
 ERL_NIF_TERM esqlite_ok_tuple(ErlNifEnv *, ERL_NIF_TERM);
 ERL_NIF_TERM esqlite_error_tuple(ErlNifEnv *, ERL_NIF_TERM);

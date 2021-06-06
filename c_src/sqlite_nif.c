@@ -36,6 +36,9 @@ esqlite_load(ErlNifEnv *env, void **priv, ERL_NIF_TERM info) {
         data->database_resource_type =
                 esqlite_create_resource_type(env, "database",
                                              esqlite_database_delete);
+        data->statement_resource_type =
+                esqlite_create_resource_type(env, "statement",
+                                             esqlite_statement_delete);
 
         *priv = (void *)data;
         return 0;
