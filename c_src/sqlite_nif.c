@@ -15,18 +15,27 @@
 #include "sqlite_nif.h"
 
 static ErlNifFunc esqlite_nif_functions[] = {
+        // Misc
         {"libversion", 0, esqlite_libversion, 0},
         {"sourceid", 0, esqlite_sourceid, 0},
 
+        // Databases
         {"open", 3, esqlite_open, 0},
         {"close", 1, esqlite_close, 0},
 
+        // Statements
         {"prepare", 3, esqlite_prepare, 0},
         {"finalize", 1, esqlite_finalize, 0},
         {"step", 1, esqlite_step, 0},
         {"reset", 1, esqlite_reset, 0},
+
         {"column_count", 1, esqlite_column_count, 0},
         {"column_type", 2, esqlite_column_type, 0},
+        {"column_bytes", 2, esqlite_column_bytes, 0},
+        {"column_blob", 2, esqlite_column_blob, 0},
+        {"column_double", 2, esqlite_column_double, 0},
+        {"column_int64", 2, esqlite_column_int64, 0},
+        {"column_text", 2, esqlite_column_text, 0},
 };
 
 static int

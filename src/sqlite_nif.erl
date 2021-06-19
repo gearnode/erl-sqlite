@@ -17,7 +17,8 @@
 -export([libversion/0, sourceid/0,
          open/3, close/1,
          prepare/3, finalize/1, step/1, reset/1,
-         column_count/1, column_type/2]).
+         column_count/1, column_type/2, column_bytes/2,
+         column_blob/2, column_double/2, column_int64/2, column_text/2]).
 
 -export_type([database/0, statement/0,
               result/0, result/1,
@@ -262,4 +263,24 @@ column_count(_Stmt) ->
 
 -spec column_type(statement(), non_neg_integer()) -> datatype().
 column_type(_Stmt, _Column) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_bytes(statement(), non_neg_integer()) -> non_neg_integer().
+column_bytes(_Stmt, _Column) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_blob(statement(), non_neg_integer()) -> binary().
+column_blob(_Stmt, _Column) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_double(statement(), non_neg_integer()) -> float().
+column_double(_Stmt, _Column) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_int64(statement(), non_neg_integer()) -> integer().
+column_int64(_Stmt, _Column) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_text(statement(), non_neg_integer()) -> binary().
+column_text(_Stmt, _Column) ->
   erlang:nif_error(nif_not_loaded).

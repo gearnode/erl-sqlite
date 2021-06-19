@@ -29,7 +29,8 @@ nif_test_() ->
    fun (Db) ->
        {with, Db, [fun prepare/1,
                    fun step/1,
-                   fun columns/1]}
+                   fun columns/1,
+                   fun empty_columns/1]}
    end}.
 
 prepare(Db) ->
@@ -51,13 +52,32 @@ step(Db) ->
   sqlite_nif:finalize(Stmt).
 
 columns(Db) ->
-  Query = <<"SELECT NULL, 42, 3.14, 'foo', X'616263'">>,
+  Query = <<"SELECT NULL, 42, 3.14, 'foobar', X'616263'">>,
   {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
   ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
   ?assertEqual(5, sqlite_nif:column_count(Stmt)),
   ?assertEqual(null, sqlite_nif:column_type(Stmt, 0)),
   ?assertEqual(integer, sqlite_nif:column_type(Stmt, 1)),
+  ?assertEqual(42, sqlite_nif:column_int64(Stmt, 1)),
   ?assertEqual(float, sqlite_nif:column_type(Stmt, 2)),
+  ?assertEqual(3.14, sqlite_nif:column_double(Stmt, 2)),
   ?assertEqual(text, sqlite_nif:column_type(Stmt, 3)),
+  ?assertEqual(6, sqlite_nif:column_bytes(Stmt, 3)),
+  ?assertEqual(<<"foobar">>, sqlite_nif:column_text(Stmt, 3)),
   ?assertEqual(blob, sqlite_nif:column_type(Stmt, 4)),
+  ?assertEqual(3, sqlite_nif:column_bytes(Stmt, 4)),
+  ?assertEqual(<<97, 98, 99>>, sqlite_nif:column_blob(Stmt, 4)),
+  sqlite_nif:finalize(Stmt).
+
+empty_columns(Db) ->
+  Query = <<"SELECT '', X''">>,
+  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
+  ?assertEqual(2, sqlite_nif:column_count(Stmt)),
+  ?assertEqual(text, sqlite_nif:column_type(Stmt, 0)),
+  ?assertEqual(0, sqlite_nif:column_bytes(Stmt, 0)),
+  ?assertEqual(<<"">>, sqlite_nif:column_text(Stmt, 0)),
+  ?assertEqual(blob, sqlite_nif:column_type(Stmt, 1)),
+  ?assertEqual(0, sqlite_nif:column_bytes(Stmt, 1)),
+  ?assertEqual(<<>>, sqlite_nif:column_blob(Stmt, 1)),
   sqlite_nif:finalize(Stmt).

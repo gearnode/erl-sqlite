@@ -41,12 +41,12 @@ bool esqlite_is_atom(ErlNifEnv *env, ERL_NIF_TERM, const char *);
 ErlNifResourceType *esqlite_create_resource_type(ErlNifEnv *, const char *,
                                                  ErlNifResourceDtor *);
 
+// Result codes
+ERL_NIF_TERM esqlite_result_code(ErlNifEnv *, int);
+
 // Misc
 ESQLITE_EXPORT(esqlite_libversion);
 ESQLITE_EXPORT(esqlite_sourceid);
-
-// Result codes
-ERL_NIF_TERM esqlite_result_code(ErlNifEnv *, int);
 
 // Databases
 void esqlite_database_delete(ErlNifEnv *, void *);
@@ -63,7 +63,13 @@ ESQLITE_EXPORT(esqlite_prepare);
 ESQLITE_EXPORT(esqlite_finalize);
 ESQLITE_EXPORT(esqlite_step);
 ESQLITE_EXPORT(esqlite_reset);
+
 ESQLITE_EXPORT(esqlite_column_count);
 ESQLITE_EXPORT(esqlite_column_type);
+ESQLITE_EXPORT(esqlite_column_bytes);
+ESQLITE_EXPORT(esqlite_column_blob);
+ESQLITE_EXPORT(esqlite_column_double);
+ESQLITE_EXPORT(esqlite_column_int64);
+ESQLITE_EXPORT(esqlite_column_text);
 
 #endif
