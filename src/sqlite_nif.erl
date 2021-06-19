@@ -16,11 +16,12 @@
 
 -export([libversion/0, sourceid/0,
          open/3, close/1,
-         prepare/3, finalize/1]).
+         prepare/3, finalize/1, step/1, reset/1]).
 
 -export_type([database/0, statement/0,
               result/0, result/1,
-              error_code/0, primary_error_code/0, extended_error_code/0,
+              result_code/0, non_error_result_code/0, error_code/0,
+              primary_error_code/0, extended_error_code/0,
               open_flag/0, prepare_flag/0]).
 
 -on_load(init/0).
@@ -32,6 +33,15 @@
 -type result(Result) :: {ok, Result} | {error, error_code()}.
 -type result2(Result1, Result2) ::
         {ok, Result1, Result2} | {error, error_code()}.
+
+-type result_code() ::
+        non_error_result_code()
+      | error_code().
+
+-type non_error_result_code() ::
+        ok
+      | row
+      | done.
 
 -type error_code() ::
         primary_error_code()
@@ -227,4 +237,12 @@ prepare(_Db, _Query, _Flags) ->
 
 -spec finalize(statement()) -> ok.
 finalize(_Stmt) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec step(statement()) -> result(row | done).
+step(_Stmt) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec reset(statement()) -> result().
+reset(_Stmt) ->
   erlang:nif_error(nif_not_loaded).

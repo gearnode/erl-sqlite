@@ -71,7 +71,7 @@ esqlite_prepare(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
         if (ret != SQLITE_OK) {
                 ERL_NIF_TERM reason;
 
-                reason = esqlite_error_code(env, db);
+                reason = esqlite_result_code(env, ret);
 
                 enif_free(query);
 
@@ -104,6 +104,57 @@ esqlite_finalize(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
                 return enif_make_badarg(env);
 
         sqlite3_finalize(stmt);
+
+        return enif_make_atom(env, "ok");
+}
+
+ERL_NIF_TERM
+esqlite_step(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        ERL_NIF_TERM reason;
+        int ret;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 1)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        ret = sqlite3_step(stmt);
+
+        reason = esqlite_result_code(env, ret);
+
+        if (ret != SQLITE_ROW && ret != SQLITE_DONE)
+                return esqlite_error_tuple(env, reason);
+
+        return esqlite_ok_tuple(env, reason);
+}
+
+ERL_NIF_TERM
+esqlite_reset(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        int ret;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 1)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        ret = sqlite3_reset(stmt);
+        if (ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_result_code(env, ret);
+
+                return esqlite_error_tuple(env, reason);
+        }
 
         return enif_make_atom(env, "ok");
 }

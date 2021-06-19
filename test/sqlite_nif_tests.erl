@@ -27,7 +27,8 @@ nif_test_() ->
        sqlite_nif:close(Db)
    end,
    fun (Db) ->
-       {with, Db, [fun prepare/1]}
+       {with, Db, [fun prepare/1,
+                   fun step/1]}
    end}.
 
 prepare(Db) ->
@@ -37,3 +38,13 @@ prepare(Db) ->
   ?assertEqual(<<" SELECT 2">>, Query2),
   {ok, Stmt2, <<"">>} = sqlite_nif:prepare(Db, Query2, []),
   sqlite_nif:finalize(Stmt2).
+
+step(Db) ->
+  Query = <<"SELECT 1">>,
+  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
+  ?assertEqual({ok, done}, sqlite_nif:step(Stmt)),
+  ?assertEqual(ok, sqlite_nif:reset(Stmt)),
+  ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
+  ?assertEqual({ok, done}, sqlite_nif:step(Stmt)),
+  sqlite_nif:finalize(Stmt).

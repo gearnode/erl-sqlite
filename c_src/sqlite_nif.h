@@ -45,10 +45,13 @@ ErlNifResourceType *esqlite_create_resource_type(ErlNifEnv *, const char *,
 ESQLITE_EXPORT(esqlite_libversion);
 ESQLITE_EXPORT(esqlite_sourceid);
 
+// Result codes
+ERL_NIF_TERM esqlite_result_code(ErlNifEnv *, int);
+
 // Databases
 void esqlite_database_delete(ErlNifEnv *, void *);
 int esqlite_inspect_database(ErlNifEnv *, ERL_NIF_TERM, struct sqlite3 **);
-ERL_NIF_TERM esqlite_error_code(ErlNifEnv *, struct sqlite3 *);
+ERL_NIF_TERM esqlite_database_error_code(ErlNifEnv *, struct sqlite3 *);
 
 ESQLITE_EXPORT(esqlite_open);
 ESQLITE_EXPORT(esqlite_close);
@@ -58,5 +61,7 @@ void esqlite_statement_delete(ErlNifEnv *, void *);
 
 ESQLITE_EXPORT(esqlite_prepare);
 ESQLITE_EXPORT(esqlite_finalize);
+ESQLITE_EXPORT(esqlite_step);
+ESQLITE_EXPORT(esqlite_reset);
 
 #endif
