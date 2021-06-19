@@ -28,7 +28,8 @@ nif_test_() ->
    end,
    fun (Db) ->
        {with, Db, [fun prepare/1,
-                   fun step/1]}
+                   fun step/1,
+                   fun columns/1]}
    end}.
 
 prepare(Db) ->
@@ -47,4 +48,16 @@ step(Db) ->
   ?assertEqual(ok, sqlite_nif:reset(Stmt)),
   ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
   ?assertEqual({ok, done}, sqlite_nif:step(Stmt)),
+  sqlite_nif:finalize(Stmt).
+
+columns(Db) ->
+  Query = <<"SELECT NULL, 42, 3.14, 'foo', X'616263'">>,
+  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
+  ?assertEqual(5, sqlite_nif:column_count(Stmt)),
+  ?assertEqual(null, sqlite_nif:column_type(Stmt, 0)),
+  ?assertEqual(integer, sqlite_nif:column_type(Stmt, 1)),
+  ?assertEqual(float, sqlite_nif:column_type(Stmt, 2)),
+  ?assertEqual(text, sqlite_nif:column_type(Stmt, 3)),
+  ?assertEqual(blob, sqlite_nif:column_type(Stmt, 4)),
   sqlite_nif:finalize(Stmt).

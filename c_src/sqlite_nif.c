@@ -25,6 +25,8 @@ static ErlNifFunc esqlite_nif_functions[] = {
         {"finalize", 1, esqlite_finalize, 0},
         {"step", 1, esqlite_step, 0},
         {"reset", 1, esqlite_reset, 0},
+        {"column_count", 1, esqlite_column_count, 0},
+        {"column_type", 2, esqlite_column_type, 0},
 };
 
 static int

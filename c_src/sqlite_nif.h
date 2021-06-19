@@ -63,5 +63,7 @@ ESQLITE_EXPORT(esqlite_prepare);
 ESQLITE_EXPORT(esqlite_finalize);
 ESQLITE_EXPORT(esqlite_step);
 ESQLITE_EXPORT(esqlite_reset);
+ESQLITE_EXPORT(esqlite_column_count);
+ESQLITE_EXPORT(esqlite_column_type);
 
 #endif

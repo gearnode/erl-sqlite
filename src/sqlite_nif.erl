@@ -16,13 +16,15 @@
 
 -export([libversion/0, sourceid/0,
          open/3, close/1,
-         prepare/3, finalize/1, step/1, reset/1]).
+         prepare/3, finalize/1, step/1, reset/1,
+         column_count/1, column_type/2]).
 
 -export_type([database/0, statement/0,
               result/0, result/1,
               result_code/0, non_error_result_code/0, error_code/0,
               primary_error_code/0, extended_error_code/0,
-              open_flag/0, prepare_flag/0]).
+              open_flag/0, prepare_flag/0,
+              datatype/0]).
 
 -on_load(init/0).
 
@@ -171,6 +173,13 @@
       | normalize
       | no_vtab.
 
+-type datatype() ::
+        blob
+      | float
+      | integer
+      | null
+      | text.
+
 init() ->
   Path = filename:join(find_nif_directory(sqlite), "sqlite_nif"),
   erlang:load_nif(Path, []).
@@ -245,4 +254,12 @@ step(_Stmt) ->
 
 -spec reset(statement()) -> result().
 reset(_Stmt) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_count(statement()) -> non_neg_integer().
+column_count(_Stmt) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec column_type(statement(), non_neg_integer()) -> datatype().
+column_type(_Stmt, _Column) ->
   erlang:nif_error(nif_not_loaded).

@@ -159,6 +159,63 @@ esqlite_reset(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
         return enif_make_atom(env, "ok");
 }
 
+ERL_NIF_TERM
+esqlite_column_count(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        int count;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 1)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        count = sqlite3_column_count(stmt);
+
+        return enif_make_int(env, count);
+}
+
+ERL_NIF_TERM
+esqlite_column_type(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        ERL_NIF_TERM error;
+        int column, type;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 2)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int(env, argv[1], &column) == 0)
+                return enif_make_badarg(env);
+
+        type = sqlite3_column_type(stmt, column);
+
+        switch (type) {
+        case SQLITE_BLOB:
+                return enif_make_atom(env, "blob");
+        case SQLITE_FLOAT:
+                return enif_make_atom(env, "float");
+        case SQLITE_INTEGER:
+                return enif_make_atom(env, "integer");
+        case SQLITE_NULL:
+                return enif_make_atom(env, "null");
+        case SQLITE_TEXT:
+                return enif_make_atom(env, "text");
+        }
+
+        error = enif_make_tuple2(env, enif_make_atom(env, "unknown_datatype"),
+                                 enif_make_int(env, type));
+        return enif_raise_exception(env, error);
+}
+
 static int
 esqlite_inspect_prepare_flags(ErlNifEnv *env, ERL_NIF_TERM list,
                               unsigned int *pflags) {
