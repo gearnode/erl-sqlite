@@ -19,8 +19,8 @@
 nif_test_() ->
   {setup,
    fun () ->
-       DbPath = <<"/tmp/erl-sqlite-test.db">>,
-       {ok, Db} = sqlite_nif:open(DbPath, [readwrite, create], undefined),
+       {ok, Db} = sqlite_nif:open(<<":memory:">>, [readwrite, create],
+                                  undefined),
        Db
    end,
    fun (Db) ->
