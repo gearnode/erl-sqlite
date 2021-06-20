@@ -72,4 +72,10 @@ ESQLITE_EXPORT(esqlite_column_double);
 ESQLITE_EXPORT(esqlite_column_int64);
 ESQLITE_EXPORT(esqlite_column_text);
 
+ESQLITE_EXPORT(esqlite_bind_blob64);
+ESQLITE_EXPORT(esqlite_bind_double);
+ESQLITE_EXPORT(esqlite_bind_int64);
+ESQLITE_EXPORT(esqlite_bind_null);
+ESQLITE_EXPORT(esqlite_bind_text64);
+
 #endif

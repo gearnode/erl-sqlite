@@ -30,7 +30,8 @@ nif_test_() ->
        {with, Db, [fun prepare/1,
                    fun step/1,
                    fun columns/1,
-                   fun empty_columns/1]}
+                   fun empty_columns/1,
+                   fun bind/1]}
    end}.
 
 prepare(Db) ->
@@ -80,4 +81,24 @@ empty_columns(Db) ->
   ?assertEqual(blob, sqlite_nif:column_type(Stmt, 1)),
   ?assertEqual(0, sqlite_nif:column_bytes(Stmt, 1)),
   ?assertEqual(<<>>, sqlite_nif:column_blob(Stmt, 1)),
+  sqlite_nif:finalize(Stmt).
+
+bind(Db) ->
+  Query = <<"SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7">>,
+  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  ?assertEqual(ok, sqlite_nif:bind_null(Stmt, 1)),
+  ?assertEqual(ok, sqlite_nif:bind_int64(Stmt, 2, 42)),
+  ?assertEqual(ok, sqlite_nif:bind_double(Stmt, 3, 3.14)),
+  ?assertEqual(ok, sqlite_nif:bind_text64(Stmt, 4, <<"">>)),
+  ?assertEqual(ok, sqlite_nif:bind_text64(Stmt, 5, <<"foobar">>)),
+  ?assertEqual(ok, sqlite_nif:bind_blob64(Stmt, 6, <<>>)),
+  ?assertEqual(ok, sqlite_nif:bind_blob64(Stmt, 7, <<97, 98, 99>>)),
+  ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
+  ?assertEqual(null, sqlite_nif:column_type(Stmt, 0)),
+  ?assertEqual(42, sqlite_nif:column_int64(Stmt, 1)),
+  ?assertEqual(3.14, sqlite_nif:column_double(Stmt, 2)),
+  ?assertEqual(<<"">>, sqlite_nif:column_text(Stmt, 3)),
+  ?assertEqual(<<"foobar">>, sqlite_nif:column_text(Stmt, 4)),
+  ?assertEqual(<<>>, sqlite_nif:column_blob(Stmt, 5)),
+  ?assertEqual(<<97, 98, 99>>, sqlite_nif:column_blob(Stmt, 6)),
   sqlite_nif:finalize(Stmt).

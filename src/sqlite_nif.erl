@@ -18,7 +18,9 @@
          open/3, close/1,
          prepare/3, finalize/1, step/1, reset/1,
          column_count/1, column_type/2, column_bytes/2,
-         column_blob/2, column_double/2, column_int64/2, column_text/2]).
+         column_blob/2, column_double/2, column_int64/2, column_text/2,
+         bind_blob64/3, bind_double/3, bind_int64/3, bind_null/2,
+         bind_text64/3]).
 
 -export_type([database/0, statement/0,
               result/0, result/1,
@@ -283,4 +285,24 @@ column_int64(_Stmt, _Column) ->
 
 -spec column_text(statement(), non_neg_integer()) -> binary().
 column_text(_Stmt, _Column) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec bind_blob64(statement(), pos_integer(), binary()) -> result().
+bind_blob64(_Stmt, _Parameter, _Value) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec bind_double(statement(), pos_integer(), float()) -> result().
+bind_double(_Stmt, _Parameter, _Value) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec bind_int64(statement(), pos_integer(), integer()) -> result().
+bind_int64(_Stmt, _Parameter, _Value) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec bind_null(statement(), pos_integer()) -> result().
+bind_null(_Stmt, _Parameter) ->
+  erlang:nif_error(nif_not_loaded).
+
+-spec bind_text64(statement(), pos_integer(), binary()) -> result().
+bind_text64(_Stmt, _Parameter, _Value) ->
   erlang:nif_error(nif_not_loaded).

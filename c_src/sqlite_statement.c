@@ -342,6 +342,169 @@ esqlite_column_text(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
         return term;
 }
 
+ERL_NIF_TERM
+esqlite_bind_blob64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        ErlNifBinary binary;
+        int parameter, ret;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 3)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int(env, argv[1], &parameter) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_inspect_binary(env, argv[2], &binary) == 0)
+                return 0;
+
+        ret = sqlite3_bind_blob64(stmt, parameter, binary.data, binary.size,
+                                  SQLITE_TRANSIENT);
+        if (ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_result_code(env, ret);
+
+                return esqlite_error_tuple(env, reason);
+        }
+
+        return enif_make_atom(env, "ok");
+}
+
+ERL_NIF_TERM
+esqlite_bind_double(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        int parameter, ret;
+        double value;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 3)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int(env, argv[1], &parameter) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_double(env, argv[2], &value) == 0)
+                return enif_make_badarg(env);
+
+        ret = sqlite3_bind_double(stmt, parameter, value);
+        if (ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_result_code(env, ret);
+
+                return esqlite_error_tuple(env, reason);
+        }
+
+        return enif_make_atom(env, "ok");
+}
+
+ERL_NIF_TERM
+esqlite_bind_int64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        int parameter, ret;
+        int64_t value;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 3)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int(env, argv[1], &parameter) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int64(env, argv[2], &value) == 0)
+                return enif_make_badarg(env);
+
+        ret = sqlite3_bind_int64(stmt, parameter, value);
+        if (ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_result_code(env, ret);
+
+                return esqlite_error_tuple(env, reason);
+        }
+
+        return enif_make_atom(env, "ok");
+}
+
+ERL_NIF_TERM
+esqlite_bind_null(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        int parameter, ret;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 2)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int(env, argv[1], &parameter) == 0)
+                return enif_make_badarg(env);
+
+        ret = sqlite3_bind_null(stmt, parameter);
+        if (ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_result_code(env, ret);
+
+                return esqlite_error_tuple(env, reason);
+        }
+
+        return enif_make_atom(env, "ok");
+}
+
+ERL_NIF_TERM
+esqlite_bind_text64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
+        struct esqlite_nif_data *nif_data;
+        struct sqlite3_stmt *stmt;
+        ErlNifBinary binary;
+        int parameter, ret;
+
+        nif_data = enif_priv_data(env);
+
+        if (argc != 3)
+                return enif_make_badarg(env);
+
+        if (esqlite_inspect_statement(env, argv[0], &stmt) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_get_int(env, argv[1], &parameter) == 0)
+                return enif_make_badarg(env);
+
+        if (enif_inspect_binary(env, argv[2], &binary) == 0)
+                return 0;
+
+        ret = sqlite3_bind_text64(stmt, parameter, (const char*)binary.data,
+                                  binary.size, SQLITE_TRANSIENT, SQLITE_UTF8);
+        if (ret != SQLITE_OK) {
+                ERL_NIF_TERM reason;
+
+                reason = esqlite_result_code(env, ret);
+
+                return esqlite_error_tuple(env, reason);
+        }
+
+        return enif_make_atom(env, "ok");
+}
+
 static int
 esqlite_inspect_prepare_flags(ErlNifEnv *env, ERL_NIF_TERM list,
                               unsigned int *pflags) {

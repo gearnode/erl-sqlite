@@ -36,6 +36,12 @@ static ErlNifFunc esqlite_nif_functions[] = {
         {"column_double", 2, esqlite_column_double, 0},
         {"column_int64", 2, esqlite_column_int64, 0},
         {"column_text", 2, esqlite_column_text, 0},
+
+        {"bind_blob64", 3, esqlite_bind_blob64, 0},
+        {"bind_double", 3, esqlite_bind_double, 0},
+        {"bind_int64", 3, esqlite_bind_int64, 0},
+        {"bind_null", 2, esqlite_bind_null, 0},
+        {"bind_text64", 3, esqlite_bind_text64, 0},
 };
 
 static int
