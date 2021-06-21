@@ -24,9 +24,9 @@ static ErlNifFunc esqlite_nif_functions[] = {
         {"close", 1, esqlite_close, 0},
 
         // Statements
-        {"prepare", 3, esqlite_prepare, 0},
+        {"prepare", 3, esqlite_prepare, ERL_NIF_DIRTY_JOB_CPU_BOUND},
         {"finalize", 1, esqlite_finalize, 0},
-        {"step", 1, esqlite_step, 0},
+        {"step", 1, esqlite_step, ERL_NIF_DIRTY_JOB_CPU_BOUND},
         {"reset", 1, esqlite_reset, 0},
 
         {"column_count", 1, esqlite_column_count, 0},
