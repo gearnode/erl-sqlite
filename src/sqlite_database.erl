@@ -52,6 +52,7 @@ call(Ref, Message) ->
 -spec init(list()) -> et_gen_server:init_ret(state()).
 init([Path0, Options]) ->
   logger:update_process_metadata(#{domain => [sqlite, database]}),
+  process_flag(trap_exit, true), % terminate/2 must always be called
   Path = sqlite_utils:binary(Path0),
   Flags = maps:get(open_flags, Options, [readwrite, create]),
   case sqlite_nif:open(Path, Flags, undefined) of
