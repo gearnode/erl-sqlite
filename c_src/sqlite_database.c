@@ -89,6 +89,8 @@ esqlite_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
         enif_free(path);
         enif_free(vfs);
 
+        sqlite3_extended_result_codes(db, 1);
+
         pdb = enif_alloc_resource(nif_data->database_resource_type,
                                   sizeof(*pdb));
         *pdb = db;
