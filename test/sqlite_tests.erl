@@ -26,7 +26,14 @@ sqlite_test_() ->
        sqlite:close(Db)
    end,
    fun (Db) ->
-       {with, Db, [fun query/1]}
+       {with, Db, [fun query/1,
+                   fun with_transaction_ok/1,
+                   fun with_transaction_ok_value/1,
+                   fun with_transaction_error_value/1,
+                   fun with_transaction_throw/1,
+                   fun with_transaction_error/1,
+                   fun with_transaction_exit/1,
+                   fun with_transaction_commit_failure/1]}
    end}.
 
 database_open_error_test() ->
@@ -71,3 +78,77 @@ query(Db) ->
   ?assertEqual({ok, {[[1, <<"foo">>, null],
                       [2, <<"bar">>, <<1,2,3>>]], <<>>}},
                Query("SELECT id, name, data FROM products", [])).
+
+with_transaction_ok(Db) ->
+  Table = random_table_name(),
+  F = fun (_) -> create_table(Db, Table) end,
+  ?assertEqual(ok, sqlite:with_transaction(Db, F)),
+  ?assert(table_exists(Db, Table)).
+
+with_transaction_ok_value(Db) ->
+  Table = random_table_name(),
+  F = fun (_) -> create_table(Db, Table), {ok, foo} end,
+  ?assertEqual({ok, foo}, sqlite:with_transaction(Db, F)),
+  ?assert(table_exists(Db, Table)).
+
+with_transaction_error_value(Db) ->
+  Table = random_table_name(),
+  F = fun (_) -> create_table(Db, Table), {error, foo} end,
+  ?assertEqual({error, foo}, sqlite:with_transaction(Db, F)),
+  ?assertNot(table_exists(Db, Table)).
+
+with_transaction_throw(Db) ->
+  Table = random_table_name(),
+  F = fun (_) -> create_table(Db, Table), throw(foo) end,
+  ?assertThrow(foo, sqlite:with_transaction(Db, F)),
+  ?assertNot(table_exists(Db, Table)).
+
+with_transaction_error(Db) ->
+  Table = random_table_name(),
+  F = fun (_) -> create_table(Db, Table), error(foo) end,
+  ?assertError(foo, sqlite:with_transaction(Db, F)),
+  ?assertNot(table_exists(Db, Table)).
+
+with_transaction_exit(Db) ->
+  Table = random_table_name(),
+  F = fun (_) -> create_table(Db, Table), exit(foo) end,
+  ?assertExit(foo, sqlite:with_transaction(Db, F)),
+  ?assertNot(table_exists(Db, Table)).
+
+with_transaction_commit_failure(Db) ->
+  Table1 = random_table_name(),
+  Table2 = random_table_name(),
+  Query = fun (Q) -> {ok, _} = sqlite:query(Db, Q) end,
+  Query("PRAGMA foreign_keys = ON"),
+  F = fun (_) ->
+          Query(["CREATE TABLE ", Table1,
+                 "  (i INTEGER PRIMARY KEY)"]),
+          Query(["CREATE TABLE ", Table2,
+                 "  (j INTEGER REFERENCES ", Table1, " (i)",
+                 "   DEFERRABLE INITIALLY DEFERRED)"]),
+          Query(["INSERT INTO ", Table1, " (i) VALUES (1)"]),
+          Query(["INSERT INTO ", Table2, " (j) VALUES (2)"])
+      end,
+  ?assertEqual({error, {commit, {step, constraint_foreignkey}}},
+               sqlite:with_transaction(Db, F)),
+  ?assertNot(table_exists(Db, Table1)),
+  ?assertNot(table_exists(Db, Table2)).
+
+-spec random_table_name() -> unicode:chardata().
+random_table_name() ->
+  Now = os:system_time(nanosecond),
+  sqlite_utils:binary(io_lib:format("test_~b", [Now])).
+
+-spec create_table(sqlite_database:ref(), unicode:chardata()) -> ok.
+create_table(Db, Name) ->
+  Query = ["CREATE TABLE ", Name, " (i INTEGER)"],
+  {ok, _} = sqlite:query(Db, Query),
+  ok.
+
+-spec table_exists(sqlite_database:ref(), unicode:chardata()) -> boolean().
+table_exists(Db, Name) ->
+  Query = ["SELECT COUNT(*)",
+           "  FROM sqlite_master",
+           "  WHERE type = 'table' AND name = ?"],
+  {ok, {[[Count]], _}} = sqlite:query(Db, Query, [Name]),
+  Count == 1.

@@ -18,10 +18,10 @@ the process which open the database is responsible to make sure it closes it,
 in order to avoid leaking a file descriptor.
 
 ## Queries
-The `sqlite:query/3` and `sqlite:query/4` functions are used to execute
-queries. On success, the result is a `{ok, {Rows, Tail}}` where `Rows` is the
-list of rows returned by the query and `Tail` is what is left of the initial
-query once the first statement has been processed.
+The `sqlite:query/2`, `sqlite:query/3` and `sqlite:query/4` functions are used
+to execute queries. On success, the result is a `{ok, {Rows, Tail}}` where
+`Rows` is the list of rows returned by the query and `Tail` is what is left of
+the initial query once the first statement has been processed.
 
 ## Example
 ```erlang
