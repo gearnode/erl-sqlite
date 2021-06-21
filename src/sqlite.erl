@@ -65,7 +65,8 @@ open(Name, Path, Options) ->
 close(Ref) ->
   sqlite_database:stop(Ref).
 
--spec query(sqlite_database:ref(), query(), [parameter()]) -> result([row()]).
+-spec query(sqlite_database:ref(), query(), [parameter()]) ->
+        result({[row()], query()}).
 query(Database, Query, Parameters) ->
   query(Database, Query, Parameters, #{}).
 
