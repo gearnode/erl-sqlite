@@ -62,8 +62,8 @@ open(Name, Path, Options) ->
   sqlite_database:start_link(Name, Path, Options).
 
 -spec close(sqlite_database:ref()) -> ok.
-close(Ref) ->
-  sqlite_database:stop(Ref).
+close(Database) ->
+  sqlite_database:stop(Database).
 
 -spec query(sqlite_database:ref(), query(), [parameter()]) ->
         result({[row()], query()}).
