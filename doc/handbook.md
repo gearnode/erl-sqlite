@@ -19,15 +19,14 @@ in order to avoid leaking a file descriptor.
 
 ## Queries
 The `sqlite:query/2`, `sqlite:query/3` and `sqlite:query/4` functions are used
-to execute queries. On success, the result is a `{ok, {Rows, Tail}}` where
-`Rows` is the list of rows returned by the query and `Tail` is what is left of
-the initial query once the first statement has been processed.
+to execute queries. On success, the result is a `{ok, Rows}` tuple where
+`Rows` is the list of rows returned by the query.
 
 ## Example
 ```erlang
 try
   {ok, _} = sqlite:open(test_db, <<":memory:">>, #{}),
-  {ok, [[1, 2, 3]], _} = sqlite:query(test_db, "SELECT 1, 2, ?", [3]),
+  {ok, [[1, 2, 3]]} = sqlite:query(test_db, "SELECT 1, 2, ?", [3]),
 after
   sqlite:close(test_db)
 end.

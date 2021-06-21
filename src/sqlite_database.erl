@@ -95,14 +95,9 @@ query(Query0, Parameters, Options, State = #{database := Database}) ->
   Flags = [],
   Query = sqlite_utils:binary(Query0),
   case sqlite_nif:prepare(Database, Query, Flags) of
-    {ok, {Statement, Query2}} ->
+    {ok, {Statement, _}} ->
       try
-        case query_bind(Statement, 1, Parameters, Options, State) of
-          {{ok, Rows}, State2} ->
-            {{ok, {Rows, Query2}}, State2};
-          {{error, Reason}, State2} ->
-            {{error, Reason}, State2}
-        end
+        query_bind(Statement, 1, Parameters, Options, State)
       after
         sqlite_nif:finalize(Statement)
       end;

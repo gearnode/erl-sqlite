@@ -89,18 +89,16 @@ open(Name, Path, Options) ->
 close(Database) ->
   sqlite_database:stop(Database).
 
--spec query(sqlite_database:ref(), query()) ->
-        result({[row()], query()}).
+-spec query(sqlite_database:ref(), query()) -> result([row()]).
 query(Database, Query) ->
   query(Database, Query, [], #{}).
 
--spec query(sqlite_database:ref(), query(), [parameter()]) ->
-        result({[row()], query()}).
+-spec query(sqlite_database:ref(), query(), [parameter()]) -> result([row()]).
 query(Database, Query, Parameters) ->
   query(Database, Query, Parameters, #{}).
 
 -spec query(sqlite_database:ref(), query(), [parameter()], query_options()) ->
-        result({[row()], query()}).
+        result([row()]).
 query(Database, Query, Parameters, Options) ->
   sqlite_database:call(Database, {query, Query, Parameters, Options}).
 
@@ -160,7 +158,7 @@ begin_transaction(Database, Behaviour) ->
               <<"BEGIN EXCLUSIVE">>
           end,
   case query(Database, Query, []) of
-    {ok, {_, _}} ->
+    {ok, _} ->
       ok;
     {error, Reason} ->
       throw({'begin', Reason})
@@ -169,7 +167,7 @@ begin_transaction(Database, Behaviour) ->
 -spec commit(sqlite_database:ref()) -> ok.
 commit(Database) ->
   case query(Database, <<"COMMIT">>, []) of
-    {ok, {_, _}} ->
+    {ok, _} ->
       ok;
     {error, Reason} ->
       throw({commit, Reason})
@@ -178,7 +176,7 @@ commit(Database) ->
 -spec rollback(sqlite_database:ref(), error_reason()) -> ok.
 rollback(Database, OriginalErrorReason) ->
   case query(Database, <<"ROLLBACK">>, []) of
-    {ok, {_, _}} ->
+    {ok, _} ->
       ok;
     {error, Reason} ->
       throw({rollback, Reason, OriginalErrorReason})

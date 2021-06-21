@@ -58,25 +58,25 @@ query(Db) ->
             "   count INTEGER NOT NULL,"
             "   price REAL NOT NULL,",
             "   data BLOB)"],
-  ?assertMatch({ok, _}, Query(Schema, [])),
-  ?assertMatch({ok, _},
+  ?assertEqual({ok, []}, Query(Schema, [])),
+  ?assertEqual({ok, []},
                Query("INSERT INTO products"
                      "    (id, name, count, price, data)"
                      "  VALUES (?1, ?2, ?3, ?4, ?5)",
                      [1, <<"foo">>, 5, 50.0, null])),
-  ?assertMatch({ok, _},
+  ?assertEqual({ok, []},
                Query("INSERT INTO products"
                      "    (id, name, count, price, data)"
                      "  VALUES (?1, ?2, ?3, ?4, ?5)",
                      [2, <<"bar">>, 20, 200.0, <<1,2,3>>])),
-  ?assertEqual({ok, {[], <<>>}},
+  ?assertEqual({ok, []},
                Query("SELECT * FROM products WHERE id < 1", [])),
-  ?assertEqual({ok, {[[1, 5], [2, 20]], <<>>}},
+  ?assertEqual({ok, [[1, 5], [2, 20]]},
                Query("SELECT id, count FROM products ORDER BY id", [])),
-  ?assertEqual({ok, {[[250.0]], <<>>}},
+  ?assertEqual({ok, [[250.0]]},
                Query("SELECT SUM(price) FROM products", [])),
-  ?assertEqual({ok, {[[1, <<"foo">>, null],
-                      [2, <<"bar">>, <<1,2,3>>]], <<>>}},
+  ?assertEqual({ok, [[1, <<"foo">>, null],
+                     [2, <<"bar">>, <<1,2,3>>]]},
                Query("SELECT id, name, data FROM products", [])).
 
 with_transaction_ok(Db) ->
@@ -150,5 +150,5 @@ table_exists(Db, Name) ->
   Query = ["SELECT COUNT(*)",
            "  FROM sqlite_master",
            "  WHERE type = 'table' AND name = ?"],
-  {ok, {[[Count]], _}} = sqlite:query(Db, Query, [Name]),
+  {ok, [[Count]]} = sqlite:query(Db, Query, [Name]),
   Count == 1.
