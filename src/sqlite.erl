@@ -13,3 +13,31 @@
 %% IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 -module(sqlite).
+
+-export([open/1, open/2, open/3, close/1]).
+
+-export_type([error_reason/0, result/0, result/1]).
+
+-type error_reason() ::
+        {open, sqlite_nif:error_code()}.
+
+-type result() :: ok | {error, error_reason()}.
+-type result(Result) :: {ok, Result} | {error, error_reason()}.
+
+-spec open(unicode:chardata()) -> result(pid()).
+open(Path) ->
+  open(Path, #{}).
+
+-spec open(unicode:chardata(), sqlite_database:options()) -> result(pid()).
+open(Path, Options) ->
+  sqlite_database:start_link(Path, Options).
+
+-spec open(sqlite_database:name(), unicode:chardata(),
+           sqlite_database:options()) ->
+        result(pid()).
+open(Name, Path, Options) ->
+  sqlite_database:start_link(Name, Path, Options).
+
+-spec close(sqlite_database:ref()) -> ok.
+close(Ref) ->
+  sqlite_database:stop(Ref).

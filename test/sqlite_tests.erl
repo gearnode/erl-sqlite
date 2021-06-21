@@ -12,15 +12,18 @@
 %% ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 %% IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-{application, sqlite,
- [{description, "Interface for the SQLite database engine."},
-  {vsn, "git"},
-  {registered, []},
-  {applications,
-   [kernel,
-    stdlib,
-    et]},
-  {env, []},
-  {modules, []},
+-module(sqlite_tests).
 
-  {licenses, ["ISC"]}]}.
+-include_lib("eunit/include/eunit.hrl").
+
+database_open_error_test() ->
+  %% We cannot use sqlite:open/2 because it uses gen_server:start_link/3,
+  %% which causes an EXIT signal when initialization fails, which causes eunit
+  %% to freak out. Until we ditch eunit, there is nothing we can do about it.
+  ?assertEqual({error, {open, cantopen}},
+               gen_server:start(sqlite_database, ["/does_not_exist", #{}],
+                                [])).
+
+database_test() ->
+  ?assertMatch({ok, _}, sqlite:open({local, test_db}, ":memory:", #{})),
+  sqlite:close(test_db).

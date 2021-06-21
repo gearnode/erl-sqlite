@@ -12,15 +12,15 @@
 %% ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 %% IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-{application, sqlite,
- [{description, "Interface for the SQLite database engine."},
-  {vsn, "git"},
-  {registered, []},
-  {applications,
-   [kernel,
-    stdlib,
-    et]},
-  {env, []},
-  {modules, []},
+-module(sqlite_utils).
 
-  {licenses, ["ISC"]}]}.
+-export([binary/1]).
+
+-spec binary(unicode:chardata()) -> binary().
+binary(Data) ->
+  case unicode:characters_to_binary(Data) of
+    Bin when is_binary(Bin) ->
+      Bin;
+    _ ->
+      error({invalid_character_data, Data})
+  end.
