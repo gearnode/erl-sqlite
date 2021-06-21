@@ -47,7 +47,7 @@ esqlite_prepare(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
         struct esqlite_nif_data *nif_data;
         struct sqlite3 *db;
         struct sqlite3_stmt *stmt, **pstmt;
-        ERL_NIF_TERM stmt_resource, tail_term;
+        ERL_NIF_TERM stmt_resource, tail_term, result_term;
         const char *tail;
         char *query;
         unsigned int flags;
@@ -87,7 +87,9 @@ esqlite_prepare(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
         *pstmt = stmt;
         stmt_resource = enif_make_resource(env, pstmt);
 
-        return esqlite_ok_tuple2(env, stmt_resource, tail_term);
+        result_term = enif_make_tuple2(env, stmt_resource, tail_term);
+
+        return esqlite_ok_tuple(env, result_term);
 }
 
 ERL_NIF_TERM

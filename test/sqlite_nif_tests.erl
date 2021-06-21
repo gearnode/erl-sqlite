@@ -19,8 +19,7 @@
 nif_test_() ->
   {setup,
    fun () ->
-       {ok, Db} = sqlite_nif:open(<<":memory:">>, [readwrite, create],
-                                  undefined),
+       {ok, Db} = sqlite_nif:open(<<":memory:">>, [readwrite], undefined),
        Db
    end,
    fun (Db) ->
@@ -36,15 +35,15 @@ nif_test_() ->
 
 prepare(Db) ->
   Query1 = <<"SELECT 1; SELECT 2">>,
-  {ok, Stmt1, Query2} = sqlite_nif:prepare(Db, Query1, []),
+  {ok, {Stmt1, Query2}} = sqlite_nif:prepare(Db, Query1, []),
   sqlite_nif:finalize(Stmt1),
   ?assertEqual(<<" SELECT 2">>, Query2),
-  {ok, Stmt2, <<"">>} = sqlite_nif:prepare(Db, Query2, []),
+  {ok, {Stmt2, <<"">>}} = sqlite_nif:prepare(Db, Query2, []),
   sqlite_nif:finalize(Stmt2).
 
 step(Db) ->
   Query = <<"SELECT 1">>,
-  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  {ok, {Stmt, _}} = sqlite_nif:prepare(Db, Query, []),
   ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
   ?assertEqual({ok, done}, sqlite_nif:step(Stmt)),
   ?assertEqual(ok, sqlite_nif:reset(Stmt)),
@@ -54,7 +53,7 @@ step(Db) ->
 
 columns(Db) ->
   Query = <<"SELECT NULL, 42, 3.14, 'foobar', X'616263'">>,
-  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  {ok, {Stmt, _}} = sqlite_nif:prepare(Db, Query, []),
   ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
   ?assertEqual(5, sqlite_nif:column_count(Stmt)),
   ?assertEqual(null, sqlite_nif:column_type(Stmt, 0)),
@@ -72,7 +71,7 @@ columns(Db) ->
 
 empty_columns(Db) ->
   Query = <<"SELECT '', X''">>,
-  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  {ok, {Stmt, _}} = sqlite_nif:prepare(Db, Query, []),
   ?assertEqual({ok, row}, sqlite_nif:step(Stmt)),
   ?assertEqual(2, sqlite_nif:column_count(Stmt)),
   ?assertEqual(text, sqlite_nif:column_type(Stmt, 0)),
@@ -85,7 +84,7 @@ empty_columns(Db) ->
 
 bind(Db) ->
   Query = <<"SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7">>,
-  {ok, Stmt, _} = sqlite_nif:prepare(Db, Query, []),
+  {ok, {Stmt, _}} = sqlite_nif:prepare(Db, Query, []),
   ?assertEqual(ok, sqlite_nif:bind_null(Stmt, 1)),
   ?assertEqual(ok, sqlite_nif:bind_int64(Stmt, 2, 42)),
   ?assertEqual(ok, sqlite_nif:bind_double(Stmt, 3, 3.14)),

@@ -36,8 +36,6 @@
 
 -type result() :: ok | {error, error_code()}.
 -type result(Result) :: {ok, Result} | {error, error_code()}.
--type result2(Result1, Result2) ::
-        {ok, Result1, Result2} | {error, error_code()}.
 
 -type result_code() ::
         non_error_result_code()
@@ -243,7 +241,7 @@ close(_Db) ->
   erlang:nif_error(nif_not_loaded).
 
 -spec prepare(database(), binary(), [prepare_flag()]) ->
-        result2(statement(), binary()).
+        result({statement(), binary()}).
 prepare(_Db, _Query, _Flags) ->
   erlang:nif_error(nif_not_loaded).
 

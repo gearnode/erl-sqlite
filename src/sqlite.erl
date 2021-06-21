@@ -14,15 +14,38 @@
 
 -module(sqlite).
 
--export([open/1, open/2, open/3, close/1]).
+-export([open/1, open/2, open/3, close/1,
+         query/3, query/4]).
 
--export_type([error_reason/0, result/0, result/1]).
+-export_type([error_reason/0, result/0, result/1,
+              query_options/0, query/0, parameter/0, row/0, column/0]).
 
 -type error_reason() ::
-        {open, sqlite_nif:error_code()}.
+        {open, sqlite_nif:error_code()}
+      | {prepare, sqlite_nif:error_code()}
+      | {bind, sqlite_nif:error_code(), pos_integer(), parameter()}
+      | {step, sqlite_nif:error_code()}
+      | {invalid_parameter, pos_integer(), parameter()}.
 
 -type result() :: ok | {error, error_reason()}.
 -type result(Result) :: {ok, Result} | {error, error_reason()}.
+
+-type query_options() ::
+        #{}.
+
+-type query() :: unicode:chardata().
+-type parameter() ::
+        null
+      | {integer, integer()}
+      | integer()
+      | {float, float()}
+      | float()
+      | {blob, binary()}
+      | {text, binary()}
+      | binary().
+
+-type row() :: [column()].
+-type column() :: term().
 
 -spec open(unicode:chardata()) -> result(pid()).
 open(Path) ->
@@ -41,3 +64,12 @@ open(Name, Path, Options) ->
 -spec close(sqlite_database:ref()) -> ok.
 close(Ref) ->
   sqlite_database:stop(Ref).
+
+-spec query(sqlite_database:ref(), query(), [parameter()]) -> result([row()]).
+query(Database, Query, Parameters) ->
+  query(Database, Query, Parameters, #{}).
+
+-spec query(sqlite_database:ref(), query(), [parameter()], query_options()) ->
+        result({[row()], query()}).
+query(Database, Query, Parameters, Options) ->
+  sqlite_database:call(Database, {query, Query, Parameters, Options}).

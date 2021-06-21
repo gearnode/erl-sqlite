@@ -18,7 +18,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/2, start_link/3, stop/1]).
+-export([start_link/2, start_link/3, stop/1, call/2]).
 -export([init/1, terminate/2, handle_call/3, handle_cast/2, handle_info/2]).
 
 -export_type([name/0, ref/0, options/0]).
@@ -45,6 +45,10 @@ start_link(Name, Path, Options) ->
 stop(Ref) ->
   gen_server:stop(Ref).
 
+-spec call(ref(), term()) -> sqlite:result(term()).
+call(Ref, Message) ->
+  gen_server:call(Ref, Message, infinity).
+
 -spec init(list()) -> et_gen_server:init_ret(state()).
 init([Path0, Options]) ->
   logger:update_process_metadata(#{domain => [sqlite, database]}),
@@ -66,6 +70,9 @@ terminate(_Reason, #{database := Database}) ->
 
 -spec handle_call(term(), {pid(), et_gen_server:request_id()}, state()) ->
         et_gen_server:handle_call_ret(state()).
+handle_call({query, Query, Parameters, Options}, _From, State) ->
+  {Result, State} = query(Query, Parameters, Options, State),
+  {reply, Result, State};
 handle_call(Msg, From, State) ->
   ?LOG_WARNING("unhandled call ~p from ~p", [Msg, From]),
   {reply, unhandled, State}.
@@ -79,3 +86,92 @@ handle_cast(Msg, State) ->
 handle_info(Msg, State) ->
   ?LOG_WARNING("unhandled info ~p", [Msg]),
   {noreply, State}.
+
+-spec query(sqlite:query(), [sqlite:parameter()], sqlite:query_options(),
+            state()) ->
+        {sqlite:result([sqlite:row()]), state()}.
+query(Query0, Parameters, Options, State = #{database := Database}) ->
+  Flags = [],
+  Query = sqlite_utils:binary(Query0),
+  case sqlite_nif:prepare(Database, Query, Flags) of
+    {ok, {Statement, Query2}} ->
+      try
+        case query_bind(Statement, 1, Parameters, Options, State) of
+          {{ok, Rows}, State2} ->
+            {{ok, {Rows, Query2}}, State2};
+          {{error, Reason}, State2} ->
+            {{error, Reason}, State2}
+        end
+      after
+        sqlite_nif:finalize(Statement)
+      end;
+    {error, Code} ->
+      {{error, {prepare, Code}}, State}
+  end.
+
+-spec query_bind(sqlite_nif:statement(), pos_integer(), [sqlite:parameter()],
+             sqlite:query_options(), state()) ->
+        {sqlite:result([sqlite:row()]), state()}.
+query_bind(Statement, _N, [], Options, State) ->
+  query_step(Statement, [], Options, State);
+query_bind(Statement, N, [Parameter | Parameters], Options, State) ->
+  case bind(Statement, N, Parameter) of
+    ok ->
+      query_bind(Statement, N+1, Parameters, Options, State);
+    {error, Code} ->
+      {{error, {bind, Code, N, Parameter}}, State}
+  end.
+
+-spec bind(sqlite_nif:statement(), pos_integer(), sqlite:parameter()) ->
+        sqlite:result().
+bind(Statement, N, null) ->
+  sqlite_nif:bind_null(Statement, N);
+bind(Statement, N, Parameter) when is_integer(Parameter) ->
+  bind(Statement, N, {integer, Parameter});
+bind(Statement, N, Parameter) when is_float(Parameter) ->
+  bind(Statement, N, {float, Parameter});
+bind(Statement, N, Parameter) when is_binary(Parameter) ->
+  bind(Statement, N, {text, Parameter});
+bind(Statement, N, {integer, Parameter}) ->
+  sqlite_nif:bind_int64(Statement, N, Parameter);
+bind(Statement, N, {float, Parameter}) ->
+  sqlite_nif:bind_double(Statement, N, Parameter);
+bind(Statement, N, {blob, Parameter}) ->
+  sqlite_nif:bind_blob64(Statement, N, Parameter);
+bind(Statement, N, {text, Parameter}) ->
+  sqlite_nif:bind_text64(Statement, N, Parameter);
+bind(_Statement, N, Parameter) ->
+  {error, {invalid_parameter, N, Parameter}}.
+
+-spec query_step(sqlite_nif:statement(), [sqlite:row()],
+                 sqlite:query_options(), state()) ->
+        {sqlite:result([sqlite:row()]), state()}.
+query_step(Statement, Rows, Options, State) ->
+  case sqlite_nif:step(Statement) of
+    {ok, row} ->
+      query_step(Statement, [row(Statement) | Rows], Options, State);
+    {ok, done} ->
+      {{ok, lists:reverse(Rows)}, State};
+    {error, Code} ->
+      {{error, {step, Code}}, State}
+  end.
+
+-spec row(sqlite_nif:statement()) -> sqlite:row().
+row(Statement) ->
+  NbColumns = sqlite_nif:column_count(Statement),
+  [column(Statement, N) || N <- lists:seq(0, NbColumns-1)].
+
+-spec column(sqlite_nif:statement(), non_neg_integer()) -> sqlite:column().
+column(Statement, N) ->
+  case sqlite_nif:column_type(Statement, N) of
+    null ->
+      null;
+    integer ->
+      sqlite_nif:column_int64(Statement, N);
+    float ->
+      sqlite_nif:column_double(Statement, N);
+    blob ->
+      sqlite_nif:column_blob(Statement, N);
+    text ->
+      sqlite_nif:column_text(Statement, N)
+  end.
