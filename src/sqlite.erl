@@ -71,17 +71,18 @@
 -type transaction_result() ::
         ok | {ok, term()} | {error, term()}.
 
--spec open(unicode:chardata()) -> result(pid()).
+-spec open(unicode:chardata()) -> result(sqlite_database:ref()).
 open(Path) ->
   open(Path, #{}).
 
--spec open(unicode:chardata(), sqlite_database:options()) -> result(pid()).
+-spec open(unicode:chardata(), sqlite_database:options()) ->
+        result(sqlite_database:ref()).
 open(Path, Options) ->
   sqlite_database:start_link(Path, Options).
 
 -spec open(sqlite_database:name(), unicode:chardata(),
            sqlite_database:options()) ->
-        result(pid()).
+        result(sqlite_database:ref()).
 open(Name, Path, Options) ->
   sqlite_database:start_link(Name, Path, Options).
 
