@@ -188,6 +188,40 @@ esqlite_result_code(ErlNifEnv *env, int code) {
                 return enif_make_atom(env, "ioerr_shmopen");
         case SQLITE_IOERR_SHMSIZE:
                 return enif_make_atom(env, "ioerr_shmsize");
+        case SQLITE_IOERR_SHORT_READ:
+                return enif_make_atom(env, "ioerr_short_read");
+        case SQLITE_IOERR_TRUNCATE:
+                return enif_make_atom(env, "ioerr_truncate");
+        case SQLITE_IOERR_UNLOCK:
+                return enif_make_atom(env, "ioerr_unlock");
+        case SQLITE_IOERR_VNODE:
+                return enif_make_atom(env, "ioerr_vnode");
+        case SQLITE_IOERR_WRITE:
+                return enif_make_atom(env, "ioerr_write");
+        case SQLITE_LOCKED_SHAREDCACHE:
+                return enif_make_atom(env, "locked_sharedcache");
+        case SQLITE_LOCKED_VTAB:
+                return enif_make_atom(env, "locked_vtab");
+        case SQLITE_NOTICE_RECOVER_ROLLBACK:
+                return enif_make_atom(env, "notice_recover_rollback");
+        case SQLITE_NOTICE_RECOVER_WAL:
+                return enif_make_atom(env, "notice_recover_wal");
+        case SQLITE_OK_LOAD_PERMANENTLY:
+                return enif_make_atom(env, "ok_load_permanently");
+        case SQLITE_READONLY_CANTINIT:
+                return enif_make_atom(env, "readonly_cantinit");
+        case SQLITE_READONLY_CANTLOCK:
+                return enif_make_atom(env, "readonly_cantlock");
+        case SQLITE_READONLY_DBMOVED:
+                return enif_make_atom(env, "readonly_dbmoved");
+        case SQLITE_READONLY_DIRECTORY:
+                return enif_make_atom(env, "readonly_directory");
+        case SQLITE_READONLY_RECOVERY:
+                return enif_make_atom(env, "readonly_recovery");
+        case SQLITE_READONLY_ROLLBACK:
+                return enif_make_atom(env, "readonly_recovery");
+        case SQLITE_WARNING_AUTOINDEX:
+                return enif_make_atom(env, "warning_autoindex");
         }
 
         return enif_make_int(env, code);
