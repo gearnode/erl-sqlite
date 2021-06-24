@@ -25,8 +25,8 @@ to execute queries. On success, the result is a `{ok, Rows}` tuple where
 ## Example
 ```erlang
 try
-  {ok, _} = sqlite:open(test_db, <<":memory:">>, #{}),
-  {ok, [[1, 2, 3]]} = sqlite:query({local, test_db}, "SELECT 1, 2, ?", [3]),
+  {ok, _} = sqlite:open({local, test_db}, <<":memory:">>, #{}),
+  {ok, [[1, 2, 3]]} = sqlite:query(test_db, "SELECT 1, 2, ?", [3]),
 after
   sqlite:close(test_db)
 end.
