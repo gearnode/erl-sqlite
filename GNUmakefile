@@ -1,9 +1,11 @@
-CC = clang
+CC ?= clang
 
 NIF_CFLAGS  = -std=c99 -D_POSIX_C_SOURCE=200809L
 NIF_CFLAGS += -Wall -Wextra -Werror -Wsign-conversion
 NIF_CFLAGS += -Wno-unused-parameter -Wno-unused-function
+ifeq ($(CC),clang)
 NIF_CFLAGS += -fcolor-diagnostics
+endif
 NIF_CFLAGS += -fPIC
 NIF_CFLAGS += -Ic_src/sqlite3
 
