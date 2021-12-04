@@ -94,10 +94,7 @@ esqlite_prepare(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_finalize(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 1)
                 return enif_make_badarg(env);
@@ -112,12 +109,9 @@ esqlite_finalize(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_step(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         ERL_NIF_TERM reason;
         int ret;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 1)
                 return enif_make_badarg(env);
@@ -137,11 +131,8 @@ esqlite_step(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_reset(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int ret;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 1)
                 return enif_make_badarg(env);
@@ -163,11 +154,8 @@ esqlite_reset(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_count(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int count;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 1)
                 return enif_make_badarg(env);
@@ -182,12 +170,9 @@ esqlite_column_count(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_type(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         ERL_NIF_TERM error;
         int column, type;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -220,11 +205,8 @@ esqlite_column_type(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_bytes(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int column, bytes;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -242,14 +224,11 @@ esqlite_column_bytes(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_blob(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         unsigned char *buf;
         const void *blob;
         int column, bytes;
         ERL_NIF_TERM term;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -271,12 +250,9 @@ esqlite_column_blob(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_double(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int column;
         double d;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -294,12 +270,9 @@ esqlite_column_double(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_int64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int column;
         int64_t i;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -317,14 +290,11 @@ esqlite_column_int64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_column_text(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         unsigned char *buf;
         const void *text;
         int column, bytes;
         ERL_NIF_TERM term;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -346,12 +316,9 @@ esqlite_column_text(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_bind_blob64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         ErlNifBinary binary;
         int parameter, ret;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 3)
                 return enif_make_badarg(env);
@@ -380,12 +347,9 @@ esqlite_bind_blob64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_bind_double(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int parameter, ret;
         double value;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 3)
                 return enif_make_badarg(env);
@@ -413,12 +377,9 @@ esqlite_bind_double(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_bind_int64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int parameter, ret;
         int64_t value;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 3)
                 return enif_make_badarg(env);
@@ -446,11 +407,8 @@ esqlite_bind_int64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_bind_null(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         int parameter, ret;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 2)
                 return enif_make_badarg(env);
@@ -475,12 +433,9 @@ esqlite_bind_null(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_bind_text64(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3_stmt *stmt;
         ErlNifBinary binary;
         int parameter, ret;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 3)
                 return enif_make_badarg(env);

@@ -100,10 +100,7 @@ esqlite_open(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
 
 ERL_NIF_TERM
 esqlite_close(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]) {
-        struct esqlite_nif_data *nif_data;
         struct sqlite3 *db;
-
-        nif_data = enif_priv_data(env);
 
         if (argc != 1)
                 return enif_make_badarg(env);
