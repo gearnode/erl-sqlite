@@ -19,7 +19,7 @@
   {applications,
    [kernel,
     stdlib,
-    et]},
+    core]},
   {env, []},
   {modules, []},
 

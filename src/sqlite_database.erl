@@ -23,8 +23,8 @@
 
 -export_type([name/0, ref/0, options/0]).
 
--type name() :: et_gen_server:name().
--type ref() :: et_gen_server:ref().
+-type name() :: c_gen_server:name().
+-type ref() :: c_gen_server:ref().
 
 -type options() :: #{open_flags => [sqlite_nif:open_flag()]}.
 
@@ -32,12 +32,12 @@
                    database := sqlite_nif:database()}.
 
 -spec start_link(unicode:chardata(), options()) ->
-        et_gen_server:start_ret().
+        c_gen_server:start_ret().
 start_link(Path, Options) ->
   gen_server:start_link(?MODULE, [Path, Options], []).
 
 -spec start_link(name(), unicode:chardata(), options()) ->
-        et_gen_server:start_ret().
+        c_gen_server:start_ret().
 start_link(Name, Path, Options) ->
   gen_server:start_link(Name, ?MODULE, [Path, Options], []).
 
@@ -49,7 +49,7 @@ stop(Ref) ->
 call(Ref, Message) ->
   gen_server:call(Ref, Message, infinity).
 
--spec init(list()) -> et_gen_server:init_ret(state()).
+-spec init(list()) -> c_gen_server:init_ret(state()).
 init([Path0, Options]) ->
   logger:update_process_metadata(#{domain => [sqlite, database]}),
   process_flag(trap_exit, true), % terminate/2 must always be called
@@ -64,13 +64,13 @@ init([Path0, Options]) ->
       {stop, {open, Code}}
   end.
 
--spec terminate(et_gen_server:terminate_reason(), state()) -> ok.
+-spec terminate(c_gen_server:terminate_reason(), state()) -> ok.
 terminate(_Reason, #{database := Database}) ->
   sqlite_nif:close(Database),
   ok.
 
--spec handle_call(term(), {pid(), et_gen_server:request_id()}, state()) ->
-        et_gen_server:handle_call_ret(state()).
+-spec handle_call(term(), {pid(), c_gen_server:request_id()}, state()) ->
+        c_gen_server:handle_call_ret(state()).
 handle_call({query, Query, Parameters, Options}, _From, State) ->
   {Result, State} = query(Query, Parameters, Options, State),
   {reply, Result, State};
@@ -78,12 +78,12 @@ handle_call(Msg, From, State) ->
   ?LOG_WARNING("unhandled call ~p from ~p", [Msg, From]),
   {reply, unhandled, State}.
 
--spec handle_cast(term(), state()) -> et_gen_server:handle_cast_ret(state()).
+-spec handle_cast(term(), state()) -> c_gen_server:handle_cast_ret(state()).
 handle_cast(Msg, State) ->
   ?LOG_WARNING("unhandled cast ~p", [Msg]),
   {noreply, State}.
 
--spec handle_info(term(), state()) -> et_gen_server:handle_info_ret(state()).
+-spec handle_info(term(), state()) -> c_gen_server:handle_info_ret(state()).
 handle_info(Msg, State) ->
   ?LOG_WARNING("unhandled info ~p", [Msg]),
   {noreply, State}.
